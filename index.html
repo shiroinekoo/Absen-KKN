@@ -16,7 +16,6 @@
     --stamp-red: #A93226;
     --stamp-red-dark: #7F241B;
     --paddy: #5F7A4F;
-    --paddy-dark: #445938;
     --sky: #3D6B7A;
     --line: #C9C0A3;
     --card: #FBF9F1;
@@ -172,12 +171,12 @@
   .legend i.proker{background:var(--stamp-red); border-color:var(--stamp-red-dark);}
   .legend i.izin{background:var(--amber); border-color:#8F6A22;}
 
-  /* --- PERBAIKAN TABEL MATRIX & STICKY STYLES --- */
+  /* --- STUKTUR TABEL MATRIX & FIX BORDER --- */
   .grid-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px; position:relative;}
   table.matrix{border-collapse:separate; border-spacing:0; font-size:12px; min-width:100%; background:var(--card);}
   table.matrix th, table.matrix td{border:1px solid var(--line); padding:0; text-align:center;}
   
-  /* Header Sticky */
+  /* Sticky Header */
   table.matrix thead th{
     position:sticky; top:0; z-index:4;
     background:var(--paper-dark);
@@ -185,7 +184,7 @@
     font-weight:700; padding:7px 3px; font-size:11px; white-space:nowrap; vertical-align:middle;
   }
   
-  /* Kolom Sticky Kiri */
+  /* Sticky Kolom Kiri */
   table.matrix .col-no{
     position:sticky; left:0; z-index:5;
     background:var(--card);
@@ -197,14 +196,14 @@
     background:var(--card);
     text-align:left; padding:9px 10px;
     min-width:210px; max-width:210px;
-    border-right:1.5px solid var(--ink);
+    border-right:1px solid var(--ink);
   }
 
-  /* Perbedaan Z-Index untuk Header Pojok Kiri Atas */
+  /* Header Kiri Atas Z-Index */
   table.matrix thead .col-no{ z-index:10; background:var(--paper-dark); }
-  table.matrix thead .col-name{ z-index:10; background:var(--paper-dark); border-bottom:1.5px solid var(--ink); }
+  table.matrix thead .col-name{ z-index:10; background:var(--paper-dark); border-bottom:1px solid var(--ink); }
 
-  /* Warna latar zebra striping pada kolom sticky */
+  /* Zebra Striping Sticky Column */
   table.matrix tbody tr:nth-child(even) .col-no,
   table.matrix tbody tr:nth-child(even) .col-name{background:#F6F3E7;}
   table.matrix tbody tr:hover .col-no,
@@ -235,7 +234,9 @@
   .day-cell.agenda{background:var(--sky); color:#fff;}
   .day-cell.proker{background:var(--stamp-red); color:#fff;}
   .day-cell.izin{background:var(--amber); color:#fff;}
-  .month-sep{border-left:1.5px solid var(--ink) !important;}
+  
+  /* Perbaikan pembatas bulan agar rapi dan tidak tebal berlebihan */
+  .month-sep{border-left:1px solid var(--ink) !important;}
 
   .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:18px;}
   .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:left;}
@@ -273,7 +274,7 @@
     <button data-view="anggota">Anggota</button>
   </nav>
 
-  <!-- ===== PRESENSI (MATRIX) ===== -->
+  <!-- ===== PRESENSI ===== -->
   <div class="view active" id="view-presensi">
     <div class="card">
       <div class="range-row">
@@ -377,7 +378,7 @@
   const MONTHS_ID_LONG = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
   let members = [];
-  let attendance = {};
+  let attendance = {}; // Dimulai dalam keadaan bersih tanpa data presensi awal
   let rangeStart = DEFAULT_START;
   let rangeEnd = DEFAULT_END;
 
@@ -385,7 +386,7 @@
   const $$ = sel => document.querySelectorAll(sel);
 
   function uid(){ return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }
   function parseDate(str){ return new Date(str+"T00:00:00"); }
   function fmtShort(d){ return String(d.getDate()); }
   function isoOf(d){ return d.toISOString().slice(0,10); }
@@ -427,7 +428,7 @@
     if(!members){ seedNeeded = true; }
 
     try{
-      const a = localStorage.getItem('kkn-attendance2');
+      const a = localStorage.getItem('kkn-attendance_clean');
       attendance = a ? JSON.parse(a) : {};
     }catch(e){ attendance = {}; }
 
@@ -441,13 +442,15 @@
       await saveMembers();
     }
   }
+
   async function saveMembers(){
     try{ localStorage.setItem('kkn-members', JSON.stringify(members)); }
     catch(e){ console.error('Gagal menyimpan anggota', e); }
   }
+
   async function saveAttendance(showStatus){
     try{
-      localStorage.setItem('kkn-attendance2', JSON.stringify(attendance));
+      localStorage.setItem('kkn-attendance_clean', JSON.stringify(attendance));
       if(showStatus){
         const el = $('#saveStatus');
         el.textContent = '✓ Tersimpan';
@@ -455,6 +458,7 @@
       }
     }catch(e){ console.error('Gagal menyimpan presensi', e); }
   }
+
   async function saveRange(){
     try{ localStorage.setItem('kkn-range', JSON.stringify({start:rangeStart, end:rangeEnd})); }
     catch(e){ console.error('Gagal menyimpan rentang tanggal', e); }
@@ -473,7 +477,7 @@
     });
   });
 
-  // ---------- RANGE ----------
+  // ---------- RENTANG TANGGAL ----------
   $('#btnApplyRange').addEventListener('click', async ()=>{
     const s = $('#rangeStart').value, e = $('#rangeEnd').value;
     if(!s || !e || s > e) return;
@@ -482,7 +486,7 @@
     renderMatrix();
   });
 
-  // ---------- EXPORT EXCEL (SIMBOL DILAPORKAN SAMA PERSIS DENGAN WEB) ----------
+  // ---------- EXPORT EXCEL ----------
   function statusLabel(s){
     if(s==='H' || s==='AG' || s==='PK') return '✓';
     if(s==='IZ') return 'I';
@@ -520,7 +524,7 @@
   }
 
   function exportExcel(){
-    if(typeof XLSX === 'undefined'){ alert('Gagal memuat modul Excel. Periksa koneksi internet lalu coba lagi.'); return; }
+    if(typeof XLSX === 'undefined'){ alert('Gagal memuat modul Excel.'); return; }
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, buildMatrixSheet(), 'Presensi');
     XLSX.utils.book_append_sheet(wb, buildRekapSheet(), 'Rekap');
@@ -566,7 +570,7 @@
     });
   }
 
-  // ---------- MATRIX ----------
+  // ---------- MATRIX PRESENSI ----------
   function renderMatrix(){
     $('#rangeBadge').textContent = fmtRangeBadge();
     $('#rangeStart').value = rangeStart;
