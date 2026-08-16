@@ -155,16 +155,18 @@
 
   table{width:100%; border-collapse:collapse; font-size:14px;}
   th{font-family:'JetBrains Mono', monospace; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); padding:8px 10px; border-bottom:2px solid var(--ink);}
-  td{padding:10px 10px; border-bottom:1px solid var(--line);}
+  td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:middle;}
   tr:last-child td{border-bottom:none;}
   .mono{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--ink-soft);}
+  .card table:not(.matrix) tbody tr:nth-child(even) td{background:rgba(46,58,43,0.025);}
+  .card table:not(.matrix) tbody tr:hover td{background:var(--paper-dark);}
 
   .empty{text-align:center; padding:36px 20px; color:var(--ink-soft); font-size:14px;}
   .empty .big{font-size:34px; margin-bottom:8px;}
 
   .legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; font-family:'JetBrains Mono', monospace; color:var(--ink-soft);}
   .legend span{display:inline-flex; align-items:center; gap:6px;}
-  .legend i{width:16px; height:16px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; border:1.5px solid var(--line); font-size:10px; font-weight:700; color:#fff;}
+  .legend i{width:16px; height:16px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; border:1.5px solid var(--line); font-size:10px; font-weight:700; color:#fff; font-style:normal;}
   .legend i.hadir{background:#fff; color:var(--ink); border-color:var(--ink-soft);}
   .legend i.agenda{background:var(--sky); border-color:#2A4E59;}
   .legend i.proker{background:var(--stamp-red); border-color:var(--stamp-red-dark);}
@@ -173,19 +175,26 @@
   .grid-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px;}
   table.matrix{border-collapse:separate; border-spacing:0; font-size:12px; min-width:100%;}
   table.matrix th, table.matrix td{border:1px solid var(--line); padding:0; text-align:center;}
-  table.matrix thead th{background:var(--paper-dark); font-family:'JetBrains Mono', monospace; font-weight:700; padding:6px 2px; font-size:11px; white-space:nowrap;}
+  table.matrix thead th{background:var(--paper-dark); font-family:'JetBrains Mono', monospace; font-weight:700; padding:7px 3px; font-size:11px; white-space:nowrap; vertical-align:middle;}
   table.matrix .col-name{
-    position:sticky; left:0; z-index:2;
+    position:sticky; left:35px; z-index:2;
     background:var(--card);
     text-align:left; padding:9px 10px;
     min-width:210px; max-width:210px;
     border-right:2px solid var(--ink);
   }
   table.matrix thead .col-name{background:var(--paper-dark); z-index:3; border-bottom:2px solid var(--ink);}
-  table.matrix .col-no{position:sticky; left:0; z-index:2; background:var(--card); min-width:34px; border-right:1px solid var(--line);}
+  table.matrix .col-no{position:sticky; left:0; z-index:2; background:var(--card); min-width:35px; max-width:35px; border-right:1px solid var(--line);}
   table.matrix thead .col-no{background:var(--paper-dark); z-index:3;}
-  .week-head{font-family:'JetBrains Mono', monospace; font-weight:700; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); background:var(--paper-dark); padding:5px 2px !important;}
+  table.matrix tbody tr:nth-child(even) .col-no,
+  table.matrix tbody tr:nth-child(even) .col-name{background:rgba(46,58,43,0.03);}
+  table.matrix tbody tr:hover .col-no,
+  table.matrix tbody tr:hover .col-name{background:var(--paper-dark);}
+  .week-head{font-family:'JetBrains Mono', monospace; font-weight:700; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); background:var(--paper-dark); padding:6px 2px !important;}
   .week-head.alt{color:var(--stamp-red);}
+  .day-num{display:block;}
+  .day-num.sunday{color:var(--stamp-red); font-weight:700;}
+  th.sunday-header{background:var(--paper-dark); border-bottom:2px solid var(--stamp-red);}
   .cell-name{font-weight:600; font-size:13px;}
   .cell-npm{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-soft);}
   .day-cell{
@@ -200,12 +209,12 @@
     transition:.1s;
   }
   .day-cell:hover{background:var(--paper-dark);}
+  .day-cell.sunday{background:var(--paper-dark);}
   .day-cell.hadir{background:#fff; color:var(--ink);}
   .day-cell.agenda{background:var(--sky); color:#fff;}
   .day-cell.proker{background:var(--stamp-red); color:#fff;}
   .day-cell.izin{background:var(--amber); color:#fff;}
   .month-sep{border-left:2px solid var(--ink) !important;}
-  .weekend:not(.agenda):not(.proker):not(.izin){background:rgba(46,58,43,0.04);}
 
   .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:18px;}
   .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:left;}
@@ -255,7 +264,7 @@
       </div>
     </div>
     <div class="card" style="margin-top:16px;">
-      <div class="section-title"><span class="num">01</span> Tandai Izin &amp; Alpha</div>
+      <div class="section-title"><span class="num">01</span> Tandai Presensi &amp; Agenda</div>
       <div class="legend">
         <span><i style="background:var(--card); color:var(--ink-soft); border-style:dashed;">·</i> Kosong = Belum diisi</span>
         <span><i class="hadir">✓</i> Putih = Hadir</span>
@@ -346,8 +355,8 @@
   const MONTHS_ID = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
   const MONTHS_ID_LONG = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
-  let members = [];       // {id, npm, nama}
-  let attendance = {};    // { memberId: { "YYYY-MM-DD": "I" | "A" } }
+  let members = [];
+  let attendance = {};
   let rangeStart = DEFAULT_START;
   let rangeEnd = DEFAULT_END;
 
@@ -391,19 +400,19 @@
   async function loadData(){
     let seedNeeded = false;
     try{
-      const m = await window.storage.get('kkn-members');
-      members = m ? JSON.parse(m.value) : null;
+      const m = localStorage.getItem('kkn-members');
+      members = m ? JSON.parse(m) : null;
     }catch(e){ members = null; }
     if(!members){ seedNeeded = true; }
 
     try{
-      const a = await window.storage.get('kkn-attendance2');
-      attendance = a ? JSON.parse(a.value) : {};
+      const a = localStorage.getItem('kkn-attendance2');
+      attendance = a ? JSON.parse(a) : {};
     }catch(e){ attendance = {}; }
 
     try{
-      const r = await window.storage.get('kkn-range');
-      if(r){ const rv = JSON.parse(r.value); rangeStart = rv.start || DEFAULT_START; rangeEnd = rv.end || DEFAULT_END; }
+      const r = localStorage.getItem('kkn-range');
+      if(r){ const rv = JSON.parse(r); rangeStart = rv.start || DEFAULT_START; rangeEnd = rv.end || DEFAULT_END; }
     }catch(e){ /* keep defaults */ }
 
     if(seedNeeded){
@@ -412,12 +421,12 @@
     }
   }
   async function saveMembers(){
-    try{ await window.storage.set('kkn-members', JSON.stringify(members)); }
+    try{ localStorage.setItem('kkn-members', JSON.stringify(members)); }
     catch(e){ console.error('Gagal menyimpan anggota', e); }
   }
   async function saveAttendance(showStatus){
     try{
-      await window.storage.set('kkn-attendance2', JSON.stringify(attendance));
+      localStorage.setItem('kkn-attendance2', JSON.stringify(attendance));
       if(showStatus){
         const el = $('#saveStatus');
         el.textContent = '✓ Tersimpan';
@@ -426,7 +435,7 @@
     }catch(e){ console.error('Gagal menyimpan presensi', e); }
   }
   async function saveRange(){
-    try{ await window.storage.set('kkn-range', JSON.stringify({start:rangeStart, end:rangeEnd})); }
+    try{ localStorage.setItem('kkn-range', JSON.stringify({start:rangeStart, end:rangeEnd})); }
     catch(e){ console.error('Gagal menyimpan rentang tanggal', e); }
   }
 
@@ -458,21 +467,21 @@
     if(s==='AG') return 'Agenda';
     if(s==='PK') return 'Proker';
     if(s==='IZ') return 'Izin';
-    return '';
+    return '-';
   }
 
   function buildMatrixSheet(){
     const dates = dateList();
     const weeks = weekNumbers(dates);
-    const weekRow = ['', ''];
-    const dayRow = ['No','Nama Anggota'];
+    const weekRow = ['', '', ''];
+    const dayRow = ['No','NPM','Nama Anggota'];
     dates.forEach((d,i)=>{
       weekRow.push('Minggu ' + weeks[i]);
       dayRow.push(String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'));
     });
     const rows = [weekRow, dayRow];
     members.forEach((m,idx)=>{
-      const row = [idx+1, m.nama + (m.npm ? (' ('+m.npm+')') : '')];
+      const row = [idx+1, m.npm || '', m.nama];
       dates.forEach(d=>{
         const s = (attendance[m.id] && attendance[m.id][isoOf(d)]) || '';
         row.push(statusLabel(s));
@@ -562,7 +571,6 @@
 
     const weeks = weekNumbers(dates);
 
-    // row 1: week groups (Minggu 1, 2, 3...)
     let weekRow = '<tr><th class="col-no" rowspan="2"></th><th class="col-name" rowspan="2">Nama Anggota</th>';
     let i2 = 0;
     while(i2 < dates.length){
@@ -574,12 +582,11 @@
     }
     weekRow += '</tr>';
 
-    // row 2: day numbers
     let dayRow = '<tr>';
     dates.forEach((d,i)=>{
       const monthChange = i===0 || d.getMonth() !== dates[i-1].getMonth();
-      const wknd = (d.getDay()===0 || d.getDay()===6);
-      dayRow += `<th class="${monthChange?'month-sep':''} ${wknd?'weekend':''}" title="${d.getDate()} ${MONTHS_ID_LONG[d.getMonth()]}">${fmtShort(d)}</th>`;
+      const isSunday = d.getDay()===0;
+      dayRow += `<th class="${monthChange?'month-sep':''} ${isSunday?'sunday-header':''}" title="${d.getDate()} ${MONTHS_ID_LONG[d.getMonth()]}"><span class="day-num ${isSunday?'sunday':''}">${fmtShort(d)}</span></th>`;
     });
     dayRow += '</tr>';
 
@@ -592,14 +599,14 @@
         const iso = isoOf(d);
         const status = (attendance[m.id] && attendance[m.id][iso]) || '';
         const monthChange = i===0 || d.getMonth() !== dates[i-1].getMonth();
-        const wknd = (d.getDay()===0 || d.getDay()===6);
+        const isSunday = d.getDay()===0;
         const cls = ['day-cell'];
         if(status==='H') cls.push('hadir');
         if(status==='AG') cls.push('agenda');
         if(status==='PK') cls.push('proker');
         if(status==='IZ') cls.push('izin');
         if(monthChange) cls.push('month-sep');
-        if(wknd && !status) cls.push('weekend');
+        if(isSunday) cls.push('sunday');
         tbody += `<td class="${cls.join(' ')}" data-member="${m.id}" data-date="${iso}">${cellSymbol(status)}</td>`;
       });
       tbody += '</tr>';
@@ -659,7 +666,6 @@
     const totalAgenda = rows.reduce((a,r)=>a+r.agenda,0);
     const totalProker = rows.reduce((a,r)=>a+r.proker,0);
     const totalIzin = rows.reduce((a,r)=>a+r.izin,0);
-    const totalBelum = rows.reduce((a,r)=>a+r.belum,0);
     const avgPct = rows.length ? Math.round(rows.reduce((a,r)=>a+r.pct,0)/rows.length) : 0;
 
     $('#statGrid').innerHTML = `
