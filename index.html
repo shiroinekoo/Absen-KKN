@@ -152,7 +152,7 @@
   .range-row{display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-bottom:4px;}
   .range-row > div{min-width:150px;}
 
-  /* --- PENYESUAIAN UKURAN TABEL STANDAR --- */
+  /* TABEL STANDAR */
   table{width:100%; border-collapse:collapse; font-size:13px;}
   th{font-family:'JetBrains Mono', monospace; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); padding:10px 12px; border-bottom:2px solid var(--ink);}
   td{padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:middle;}
@@ -172,29 +172,50 @@
   .legend i.proker{background:var(--stamp-red); border-color:var(--stamp-red-dark);}
   .legend i.izin{background:var(--amber); border-color:#8F6A22;}
 
-  /* --- STUKTUR TABEL MATRIX & FIX BORDER MINGGU 2 --- */
+  /* --- STUKTUR TABEL MATRIX & PENGUNCIAN UKURAN PRESISI --- */
   .grid-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px; position:relative;}
-  table.matrix{border-collapse:separate; border-spacing:0; font-size:12px; min-width:100%; background:var(--card);}
-  table.matrix th, table.matrix td{border:1px solid var(--line); padding:0; text-align:center;}
   
+  table.matrix{
+    border-collapse:separate;
+    border-spacing:0;
+    font-size:12px;
+    background:var(--card);
+    table-layout:fixed; /* Kunci ukuran layout tabel */
+    width:max-content;  /* Lebar menyesuaikan total kolom */
+  }
+  
+  table.matrix th, table.matrix td{
+    border:1px solid var(--line);
+    padding:0;
+    text-align:center;
+    box-sizing:border-box;
+  }
+  
+  /* Kunci lebar kolom tanggal secara presisi 32px */
+  table.matrix th:not(.col-no):not(.col-name){
+    width:32px !important;
+    min-width:32px !important;
+    max-width:32px !important;
+  }
+
   table.matrix thead th{
     position:sticky; top:0; z-index:4;
     background:var(--paper-dark);
     font-family:'JetBrains Mono', monospace;
-    font-weight:700; padding:7px 3px; font-size:11px; white-space:nowrap; vertical-align:middle;
+    font-weight:700; padding:7px 0; font-size:11px; white-space:nowrap; vertical-align:middle;
   }
   
   table.matrix .col-no{
     position:sticky; left:0; z-index:5;
     background:var(--card);
-    min-width:35px; max-width:35px;
+    width:35px !important; min-width:35px !important; max-width:35px !important;
     border-right:1px solid var(--line);
   }
   table.matrix .col-name{
     position:sticky; left:35px; z-index:5;
     background:var(--card);
     text-align:left; padding:8px 10px;
-    min-width:210px; max-width:210px;
+    width:210px !important; min-width:210px !important; max-width:210px !important;
     border-right:1px solid var(--ink);
   }
 
@@ -212,10 +233,12 @@
   .day-num.sunday{color:var(--stamp-red); font-weight:700;}
   th.sunday-header{background:var(--paper-dark);}
 
-  .cell-name{font-weight:600; font-size:13px;}
+  .cell-name{font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .cell-npm{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-soft);}
+  
   .day-cell{
-    width:32px; height:36px;
+    width:32px !important; min-width:32px !important; max-width:32px !important;
+    height:36px;
     cursor:pointer;
     font-family:'JetBrains Mono', monospace;
     font-weight:700;
@@ -231,9 +254,6 @@
   .day-cell.agenda{background:var(--sky); color:#fff;}
   .day-cell.proker{background:var(--stamp-red); color:#fff;}
   .day-cell.izin{background:var(--amber); color:#fff;}
-  
-  /* PERBAIKAN GARIS PEMBATAS BULAN AGAR TIDAK MENEBAL SENDIRI */
-  .month-sep{border-left:1px solid var(--line) !important;}
 
   .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:18px;}
   .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:left;}
@@ -250,7 +270,7 @@
 
   @media (max-width:560px){
     h1{font-size:30px;}
-    table.matrix .col-name{min-width:150px; max-width:150px;}
+    table.matrix .col-name{width:150px !important; min-width:150px !important; max-width:150px !important;}
   }
 </style>
 </head>
@@ -604,10 +624,9 @@ document.addEventListener("DOMContentLoaded", function() {
     weekRow += '</tr>';
 
     let dayRow = '<tr>';
-    dates.forEach((d,i)=>{
-      const monthChange = i===0 || d.getMonth() !== dates[i-1].getMonth();
+    dates.forEach((d)=>{
       const isSunday = d.getDay()===0;
-      dayRow += `<th class="${monthChange?'month-sep':''} ${isSunday?'sunday-header':''}" title="${d.getDate()} ${MONTHS_ID_LONG[d.getMonth()]}"><span class="day-num ${isSunday?'sunday':''}">${fmtShort(d)}</span></th>`;
+      dayRow += `<th class="${isSunday?'sunday-header':''}" title="${d.getDate()} ${MONTHS_ID_LONG[d.getMonth()]}"><span class="day-num ${isSunday?'sunday':''}">${fmtShort(d)}</span></th>`;
     });
     dayRow += '</tr>';
 
@@ -616,17 +635,15 @@ document.addEventListener("DOMContentLoaded", function() {
     let tbody = '<tbody>';
     members.forEach((m,idx)=>{
       tbody += `<tr><td class="col-no mono">${idx+1}</td><td class="col-name"><div class="cell-name">${escapeHtml(m.nama)}</div><div class="cell-npm">${escapeHtml(m.npm||'')}</div></td>`;
-      dates.forEach((d,i)=>{
+      dates.forEach((d)=>{
         const iso = isoOf(d);
         const status = (attendance[m.id] && attendance[m.id][iso]) || '';
-        const monthChange = i===0 || d.getMonth() !== dates[i-1].getMonth();
         const isSunday = d.getDay()===0;
         const cls = ['day-cell'];
         if(status==='H') cls.push('hadir');
         if(status==='AG') cls.push('agenda');
         if(status==='PK') cls.push('proker');
         if(status==='IZ') cls.push('izin');
-        if(monthChange) cls.push('month-sep');
         if(isSunday) cls.push('sunday');
         tbody += `<td class="${cls.join(' ')}" data-member="${m.id}" data-date="${iso}">${cellSymbol(status)}</td>`;
       });
