@@ -171,12 +171,11 @@
   .legend i.proker{background:var(--stamp-red); border-color:var(--stamp-red-dark);}
   .legend i.izin{background:var(--amber); border-color:#8F6A22;}
 
-  /* --- STUKTUR TABEL MATRIX & FIX BORDER --- */
+  /* STUKTUR TABEL MATRIX */
   .grid-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px; position:relative;}
   table.matrix{border-collapse:separate; border-spacing:0; font-size:12px; min-width:100%; background:var(--card);}
   table.matrix th, table.matrix td{border:1px solid var(--line); padding:0; text-align:center;}
   
-  /* Sticky Header */
   table.matrix thead th{
     position:sticky; top:0; z-index:4;
     background:var(--paper-dark);
@@ -184,7 +183,6 @@
     font-weight:700; padding:7px 3px; font-size:11px; white-space:nowrap; vertical-align:middle;
   }
   
-  /* Sticky Kolom Kiri */
   table.matrix .col-no{
     position:sticky; left:0; z-index:5;
     background:var(--card);
@@ -199,11 +197,9 @@
     border-right:1px solid var(--ink);
   }
 
-  /* Header Kiri Atas Z-Index */
   table.matrix thead .col-no{ z-index:10; background:var(--paper-dark); }
   table.matrix thead .col-name{ z-index:10; background:var(--paper-dark); border-bottom:1px solid var(--ink); }
 
-  /* Zebra Striping Sticky Column */
   table.matrix tbody tr:nth-child(even) .col-no,
   table.matrix tbody tr:nth-child(even) .col-name{background:#F6F3E7;}
   table.matrix tbody tr:hover .col-no,
@@ -385,7 +381,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const $$ = sel => document.querySelectorAll(sel);
 
   function uid(){ return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }
+  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function parseDate(str){ return new Date(str+"T00:00:00"); }
   function fmtShort(d){ return String(d.getDate()); }
   function isoOf(d){ return d.toISOString().slice(0,10); }
@@ -462,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function() {
     catch(e){ console.error('Gagal menyimpan rentang tanggal', e); }
   }
 
-  // ---------- TABS NAVIGATION ----------
+  // TABS NAVIGATION
   $$('nav.tabs button').forEach(btn=>{
     btn.addEventListener('click', function(){
       $$('nav.tabs button').forEach(b=>b.classList.remove('active'));
@@ -477,7 +473,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // ---------- RENTANG TANGGAL ----------
+  // RENTANG TANGGAL
   $('#btnApplyRange').addEventListener('click', function(){
     const s = $('#rangeStart').value, e = $('#rangeEnd').value;
     if(!s || !e || s > e) return;
@@ -486,7 +482,7 @@ document.addEventListener("DOMContentLoaded", function() {
     renderMatrix();
   });
 
-  // ---------- EXPORT EXCEL ----------
+  // EXPORT EXCEL
   function statusLabel(s){
     if(s==='H' || s==='AG' || s==='PK') return '✓';
     if(s==='IZ') return 'I';
@@ -535,7 +531,7 @@ document.addEventListener("DOMContentLoaded", function() {
   $('#btnExport').addEventListener('click', exportExcel);
   $('#btnExportRekap').addEventListener('click', exportExcel);
 
-  // ---------- ANGGOTA ----------
+  // ANGGOTA
   $('#btnTambah').addEventListener('click', function(){
     const npm = $('#inputNim').value.trim();
     const nama = $('#inputNama').value.trim();
@@ -570,7 +566,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // ---------- MATRIX PRESENSI ----------
+  // MATRIX PRESENSI
   function renderMatrix(){
     $('#rangeBadge').textContent = fmtRangeBadge();
     $('#rangeStart').value = rangeStart;
@@ -663,7 +659,7 @@ document.addEventListener("DOMContentLoaded", function() {
     return '';
   }
 
-  // ---------- REKAP ----------
+  // REKAP
   function computeRecap(){
     const dates = dateList();
     const totalHari = dates.length;
@@ -724,7 +720,7 @@ document.addEventListener("DOMContentLoaded", function() {
     `).join('');
   }
 
-  // ---------- INIT ----------
+  // INIT
   loadData();
   renderAnggota();
   renderMatrix();
