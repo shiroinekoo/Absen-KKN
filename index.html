@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buku Presensi KKN</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --paper: #F2EFE2;
+    --paper-dark: #E8E2CE;
+    --ink: #2E3A2B;
+    --ink-soft: #5B6355;
+    --stamp-red: #A93226;
+    --stamp-red-dark: #7F241B;
+    --paddy: #5F7A4F;
+    --paddy-dark: #445938;
+    --sky: #3D6B7A;
+    --line: #C9C0A3;
+    --card: #FBF9F1;
+    --amber: #C08A2E;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 1px 1px, rgba(46,58,43,0.06) 1px, transparent 0) 0 0/22px 22px,
+      var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    padding:0 0 60px 0;
+  }
+
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 20px;}
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:16px;
+    margin-bottom:22px;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .brand-eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  h1{
+    font-family:'Big Shoulders Stencil', sans-serif;
+    font-weight:800;
+    font-size:40px;
+    line-height:.95;
+    margin:0;
+    letter-spacing:.01em;
+    color:var(--ink);
+  }
+  .stamp-badge{
+    border:3px solid var(--stamp-red);
+    color:var(--stamp-red);
+    font-family:'Big Shoulders Stencil', sans-serif;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    padding:7px 14px;
+    border-radius:999px;
+    transform:rotate(-4deg);
+    white-space:nowrap;
+    opacity:.9;
+  }
+
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  nav.tabs button{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    font-weight:500;
+    background:none;
+    border:none;
+    padding:10px 14px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    border-bottom:3px solid transparent;
+    margin-bottom:-1px;
+    transition:.15s;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button.active{color:var(--ink); border-bottom-color:var(--stamp-red); font-weight:700;}
+
+  .view{display:none;}
+  .view.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 1px 0 rgba(46,58,43,0.05);
+  }
+  .card + .card{margin-top:16px;}
+
+  .section-title{
+    font-family:'Big Shoulders Stencil', sans-serif;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:.02em;
+    margin:0 0 14px 0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .section-title .num{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-soft); font-weight:500;}
+
+  label{font-size:12px; font-weight:600; color:var(--ink-soft); display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.04em;}
+  input[type=text], input[type=date]{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    padding:9px 11px;
+    border:1.5px solid var(--line);
+    border-radius:7px;
+    background:#fff;
+    color:var(--ink);
+    width:100%;
+  }
+  input:focus, button:focus-visible{outline:2px solid var(--sky); outline-offset:1px; border-color:var(--sky);}
+
+  .btn{font-family:'IBM Plex Sans', sans-serif; font-weight:600; font-size:13px; padding:10px 16px; border-radius:7px; border:none; cursor:pointer; transition:.15s;}
+  .btn-primary{background:var(--ink); color:var(--paper);}
+  .btn-primary:hover{background:var(--stamp-red-dark);}
+  .btn-ghost{background:transparent; color:var(--ink-soft); border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--stamp-red); color:var(--stamp-red);}
+  .btn-danger{background:transparent; color:var(--stamp-red); border:1.5px solid transparent; font-size:12px; padding:4px 8px;}
+  .btn-danger:hover{text-decoration:underline;}
+
+  .add-row{display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;}
+  .add-row > div{flex:1; min-width:150px;}
+  .range-row{display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-bottom:4px;}
+  .range-row > div{min-width:150px;}
+
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th{font-family:'JetBrains Mono', monospace; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); padding:8px 10px; border-bottom:2px solid var(--ink);}
+  td{padding:10px 10px; border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .mono{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--ink-soft);}
+
+  .empty{text-align:center; padding:36px 20px; color:var(--ink-soft); font-size:14px;}
+  .empty .big{font-size:34px; margin-bottom:8px;}
+
+  .legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; font-family:'JetBrains Mono', monospace; color:var(--ink-soft);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .legend i{width:16px; height:16px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; border:1.5px solid var(--line); font-size:10px; font-weight:700; color:#fff;}
+  .legend i.hadir{background:#fff; color:var(--ink); border-color:var(--ink-soft);}
+  .legend i.agenda{background:var(--sky); border-color:#2A4E59;}
+  .legend i.proker{background:var(--stamp-red); border-color:var(--stamp-red-dark);}
+  .legend i.izin{background:var(--amber); border-color:#8F6A22;}
+
+  .grid-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px;}
+  table.matrix{border-collapse:separate; border-spacing:0; font-size:12px; min-width:100%;}
+  table.matrix th, table.matrix td{border:1px solid var(--line); padding:0; text-align:center;}
+  table.matrix thead th{background:var(--paper-dark); font-family:'JetBrains Mono', monospace; font-weight:700; padding:6px 2px; font-size:11px; white-space:nowrap;}
+  table.matrix .col-name{
+    position:sticky; left:0; z-index:2;
+    background:var(--card);
+    text-align:left; padding:9px 10px;
+    min-width:210px; max-width:210px;
+    border-right:2px solid var(--ink);
+  }
+  table.matrix thead .col-name{background:var(--paper-dark); z-index:3; border-bottom:2px solid var(--ink);}
+  table.matrix .col-no{position:sticky; left:0; z-index:2; background:var(--card); min-width:34px; border-right:1px solid var(--line);}
+  table.matrix thead .col-no{background:var(--paper-dark); z-index:3;}
+  .week-head{font-family:'JetBrains Mono', monospace; font-weight:700; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); background:var(--paper-dark); padding:5px 2px !important;}
+  .week-head.alt{color:var(--stamp-red);}
+  .cell-name{font-weight:600; font-size:13px;}
+  .cell-npm{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-soft);}
+  .day-cell{
+    width:30px; height:36px;
+    cursor:pointer;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:13px;
+    background:var(--card);
+    color:transparent;
+    user-select:none;
+    transition:.1s;
+  }
+  .day-cell:hover{background:var(--paper-dark);}
+  .day-cell.hadir{background:#fff; color:var(--ink);}
+  .day-cell.agenda{background:var(--sky); color:#fff;}
+  .day-cell.proker{background:var(--stamp-red); color:#fff;}
+  .day-cell.izin{background:var(--amber); color:#fff;}
+  .month-sep{border-left:2px solid var(--ink) !important;}
+  .weekend:not(.agenda):not(.proker):not(.izin){background:rgba(46,58,43,0.04);}
+
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:18px;}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:left;}
+  .stat .val{font-family:'Big Shoulders Stencil', sans-serif; font-size:32px; font-weight:800; line-height:1;}
+  .stat .lbl{font-family:'JetBrains Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin-top:4px;}
+  .stat.red .val{color:var(--stamp-red);}
+  .stat.blue .val{color:var(--sky);}
+  .stat.green .val{color:var(--paddy);}
+
+  .bar-wrap{background:var(--paper-dark); border-radius:6px; height:8px; overflow:hidden; margin-top:6px;}
+  .bar-fill{height:100%; background:var(--paddy);}
+
+  footer{text-align:center; font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-soft); margin-top:36px; letter-spacing:.05em;}
+
+  @media (max-width:560px){
+    h1{font-size:30px;}
+    table.matrix .col-name{min-width:150px; max-width:150px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="brand-eyebrow">Posko &middot; Buku Catatan Lapangan</div>
+      <h1>BUKU PRESENSI KKN</h1>
+    </div>
+    <div class="stamp-badge" id="rangeBadge">-</div>
+  </header>
+
+  <nav class="tabs">
+    <button data-view="presensi" class="active">Presensi</button>
+    <button data-view="rekap">Rekap</button>
+    <button data-view="anggota">Anggota</button>
+  </nav>
+
+  <!-- ===== PRESENSI (MATRIX) ===== -->
+  <div class="view active" id="view-presensi">
+    <div class="card">
+      <div class="range-row">
+        <div><label>Mulai</label><input type="date" id="rangeStart"></div>
+        <div><label>Selesai</label><input type="date" id="rangeEnd"></div>
+        <button class="btn btn-ghost" id="btnApplyRange">Terapkan Rentang</button>
+        <button class="btn btn-primary" id="btnExport">⬇ Export ke Excel</button>
+        <span class="mono" id="saveStatus" style="align-self:center;"></span>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="section-title"><span class="num">01</span> Tandai Izin &amp; Alpha</div>
+      <div class="legend">
+        <span><i style="background:var(--card); color:var(--ink-soft); border-style:dashed;">·</i> Kosong = Belum diisi</span>
+        <span><i class="hadir">✓</i> Putih = Hadir</span>
+        <span><i class="agenda">✓</i> Biru = Agenda</span>
+        <span><i class="proker">✓</i> Merah = Proker</span>
+        <span><i class="izin">I</i> Kuning = Izin</span>
+      </div>
+      <p class="mono" style="font-size:12px; color:var(--ink-soft); margin-top:-6px;">Klik kotak untuk mengisi: Kosong &rarr; Hadir &rarr; Agenda &rarr; Proker &rarr; Izin &rarr; Kosong.</p>
+      <div class="grid-scroll">
+        <table class="matrix" id="matrixTable"></table>
+      </div>
+      <div class="empty" id="matrixEmpty" style="display:none;">
+        <div class="big">🧾</div>
+        Tambahkan anggota dulu di tab Anggota.
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REKAP ===== -->
+  <div class="view" id="view-rekap">
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="card">
+      <div class="section-title" style="justify-content:space-between;">
+        <span><span class="num">02</span> Rekap per Anggota</span>
+        <button class="btn btn-ghost" id="btnExportRekap" style="font-size:12px; padding:7px 12px;">⬇ Export ke Excel</button>
+      </div>
+      <table>
+        <thead><tr><th>Nama</th><th>NPM</th><th>Hadir</th><th>Agenda</th><th>Proker</th><th>Izin</th><th>Belum Diisi</th><th>Kehadiran</th></tr></thead>
+        <tbody id="rekapBody"></tbody>
+      </table>
+      <div class="empty" id="rekapEmpty" style="display:none;">
+        <div class="big">📋</div>
+        Belum ada anggota.
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ANGGOTA ===== -->
+  <div class="view" id="view-anggota">
+    <div class="card">
+      <div class="section-title"><span class="num">03</span> Tambah Anggota</div>
+      <div class="add-row">
+        <div><label>NPM</label><input type="text" id="inputNim" placeholder="mis. 20231510043"></div>
+        <div><label>Nama</label><input type="text" id="inputNama" placeholder="mis. Abel Gutawa"></div>
+        <button class="btn btn-primary" id="btnTambah">+ Tambah</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title"><span class="num">04</span> Daftar Anggota <span class="mono" id="jumlahAnggota"></span></div>
+      <table id="anggotaTable" style="display:none;">
+        <thead><tr><th>No</th><th>NPM</th><th>Nama</th><th></th></tr></thead>
+        <tbody id="anggotaBody"></tbody>
+      </table>
+      <div class="empty" id="anggotaEmpty">
+        <div class="big">👥</div>
+        Belum ada anggota terdaftar.
+      </div>
+    </div>
+  </div>
+
+  <footer>DICATAT DI LAPANGAN &middot; DISIMPAN SECARA OTOMATIS</footer>
+</div>
+
+<script>
+(function(){
+  const DEFAULT_MEMBERS = [
+    {npm:"20231510043", nama:"Abel Gutawa"},
+    {npm:"20231510085", nama:"Alvi Nur Rahma"},
+    {npm:"20231510147", nama:"M. Kagi Viko Saputra"},
+    {npm:"20231510018", nama:"Rafly Arsaq Fadila"},
+    {npm:"20231510060", nama:"Gharin Noegroho Sempana"},
+    {npm:"20231610017", nama:"Sopian Jatnika"},
+    {npm:"20231610024", nama:"Adinda Putri Nuraeni"},
+    {npm:"20231610072", nama:"Yesa Amelia"},
+    {npm:"20231320012", nama:"Bayu Aji"},
+    {npm:"20231320040", nama:"Adinda Aisyahrani"},
+    {npm:"20231320014", nama:"Kamaludin"},
+    {npm:"20231320001", nama:"Alliya Khaerunnisa"},
+    {npm:"20231310032", nama:"Hafiyyan Belvana Fayyaz Qinthara Amanullah"},
+    {npm:"20231310064", nama:"Lintang Dwi Yanto"},
+    {npm:"20231120023", nama:"Erwin Gustoro"},
+    {npm:"20231120009", nama:"Ghifary Intrajaya Muhtar"},
+    {npm:"20231120005", nama:"Dimas Pauji"},
+    {npm:"20231120027", nama:"Ripki Apriyana"}
+  ];
+  const DEFAULT_START = "2026-07-20";
+  const DEFAULT_END   = "2026-08-22";
+  const MONTHS_ID = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+  const MONTHS_ID_LONG = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+  let members = [];       // {id, npm, nama}
+  let attendance = {};    // { memberId: { "YYYY-MM-DD": "I" | "A" } }
+  let rangeStart = DEFAULT_START;
+  let rangeEnd = DEFAULT_END;
+
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => document.querySelectorAll(sel);
+
+  function uid(){ return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function parseDate(str){ return new Date(str+"T00:00:00"); }
+  function fmtShort(d){ return String(d.getDate()); }
+  function isoOf(d){ return d.toISOString().slice(0,10); }
+
+  function dateList(){
+    const out = [];
+    let d = parseDate(rangeStart);
+    const end = parseDate(rangeEnd);
+    if(isNaN(d) || isNaN(end) || d > end) return out;
+    while(d <= end){
+      out.push(new Date(d));
+      d.setDate(d.getDate()+1);
+    }
+    return out;
+  }
+
+  function weekNumbers(dates){
+    if(dates.length===0) return [];
+    const start = dates[0];
+    return dates.map(d=>{
+      const diffDays = Math.round((d - start) / 86400000);
+      return Math.floor(diffDays / 7) + 1;
+    });
+  }
+
+  function fmtRangeBadge(){
+    const s = parseDate(rangeStart), e = parseDate(rangeEnd);
+    if(isNaN(s) || isNaN(e)) return "-";
+    return `${s.getDate()} ${MONTHS_ID[s.getMonth()]} - ${e.getDate()} ${MONTHS_ID[e.getMonth()]}`;
+  }
+
+  // ---------- STORAGE ----------
+  async function loadData(){
+    let seedNeeded = false;
+    try{
+      const m = await window.storage.get('kkn-members');
+      members = m ? JSON.parse(m.value) : null;
+    }catch(e){ members = null; }
+    if(!members){ seedNeeded = true; }
+
+    try{
+      const a = await window.storage.get('kkn-attendance2');
+      attendance = a ? JSON.parse(a.value) : {};
+    }catch(e){ attendance = {}; }
+
+    try{
+      const r = await window.storage.get('kkn-range');
+      if(r){ const rv = JSON.parse(r.value); rangeStart = rv.start || DEFAULT_START; rangeEnd = rv.end || DEFAULT_END; }
+    }catch(e){ /* keep defaults */ }
+
+    if(seedNeeded){
+      members = DEFAULT_MEMBERS.map(m => ({id: uid(), npm: m.npm, nama: m.nama}));
+      await saveMembers();
+    }
+  }
+  async function saveMembers(){
+    try{ await window.storage.set('kkn-members', JSON.stringify(members)); }
+    catch(e){ console.error('Gagal menyimpan anggota', e); }
+  }
+  async function saveAttendance(showStatus){
+    try{
+      await window.storage.set('kkn-attendance2', JSON.stringify(attendance));
+      if(showStatus){
+        const el = $('#saveStatus');
+        el.textContent = '✓ Tersimpan';
+        setTimeout(()=>{ if(el.textContent==='✓ Tersimpan') el.textContent=''; }, 1500);
+      }
+    }catch(e){ console.error('Gagal menyimpan presensi', e); }
+  }
+  async function saveRange(){
+    try{ await window.storage.set('kkn-range', JSON.stringify({start:rangeStart, end:rangeEnd})); }
+    catch(e){ console.error('Gagal menyimpan rentang tanggal', e); }
+  }
+
+  // ---------- TABS ----------
+  $$('nav.tabs button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      $$('nav.tabs button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      $$('.view').forEach(v=>v.classList.remove('active'));
+      $('#view-'+btn.dataset.view).classList.add('active');
+      if(btn.dataset.view==='rekap') renderRekap();
+      if(btn.dataset.view==='anggota') renderAnggota();
+      if(btn.dataset.view==='presensi') renderMatrix();
+    });
+  });
+
+  // ---------- RANGE ----------
+  $('#btnApplyRange').addEventListener('click', async ()=>{
+    const s = $('#rangeStart').value, e = $('#rangeEnd').value;
+    if(!s || !e || s > e) return;
+    rangeStart = s; rangeEnd = e;
+    await saveRange();
+    renderMatrix();
+  });
+
+  // ---------- EXPORT EXCEL ----------
+  function statusLabel(s){
+    if(s==='H') return 'Hadir';
+    if(s==='AG') return 'Agenda';
+    if(s==='PK') return 'Proker';
+    if(s==='IZ') return 'Izin';
+    return '';
+  }
+
+  function buildMatrixSheet(){
+    const dates = dateList();
+    const weeks = weekNumbers(dates);
+    const weekRow = ['', ''];
+    const dayRow = ['No','Nama Anggota'];
+    dates.forEach((d,i)=>{
+      weekRow.push('Minggu ' + weeks[i]);
+      dayRow.push(String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'));
+    });
+    const rows = [weekRow, dayRow];
+    members.forEach((m,idx)=>{
+      const row = [idx+1, m.nama + (m.npm ? (' ('+m.npm+')') : '')];
+      dates.forEach(d=>{
+        const s = (attendance[m.id] && attendance[m.id][isoOf(d)]) || '';
+        row.push(statusLabel(s));
+      });
+      rows.push(row);
+    });
+    return XLSX.utils.aoa_to_sheet(rows);
+  }
+
+  function buildRekapSheet(){
+    const {rows} = computeRecap();
+    const data = [['No','NPM','Nama','Hadir','Agenda','Proker','Izin','Belum Diisi','Persentase Kehadiran']];
+    rows.forEach((r,idx)=>{
+      data.push([idx+1, r.m.npm||'', r.m.nama, r.hadir, r.agenda, r.proker, r.izin, r.belum, r.pct + '%']);
+    });
+    return XLSX.utils.aoa_to_sheet(data);
+  }
+
+  function exportExcel(){
+    if(typeof XLSX === 'undefined'){ alert('Gagal memuat modul Excel. Periksa koneksi internet lalu coba lagi.'); return; }
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, buildMatrixSheet(), 'Presensi');
+    XLSX.utils.book_append_sheet(wb, buildRekapSheet(), 'Rekap');
+    const fname = `Presensi-KKN-${rangeStart}_${rangeEnd}.xlsx`;
+    XLSX.writeFile(wb, fname);
+  }
+
+  $('#btnExport').addEventListener('click', exportExcel);
+  $('#btnExportRekap').addEventListener('click', exportExcel);
+
+  // ---------- ANGGOTA ----------
+  $('#btnTambah').addEventListener('click', async ()=>{
+    const npm = $('#inputNim').value.trim();
+    const nama = $('#inputNama').value.trim();
+    if(!nama){ $('#inputNama').focus(); return; }
+    members.push({id: uid(), npm, nama});
+    $('#inputNim').value=''; $('#inputNama').value='';
+    await saveMembers();
+    renderAnggota();
+  });
+
+  function renderAnggota(){
+    $('#jumlahAnggota').textContent = members.length ? `(${members.length} orang)` : '';
+    const tbl = $('#anggotaTable'), body = $('#anggotaBody'), empty = $('#anggotaEmpty');
+    if(members.length===0){ tbl.style.display='none'; empty.style.display='block'; return; }
+    tbl.style.display='table'; empty.style.display='none';
+    body.innerHTML = members.map((m,i)=>`
+      <tr>
+        <td class="mono">${i+1}</td>
+        <td class="mono">${escapeHtml(m.npm||'-')}</td>
+        <td>${escapeHtml(m.nama)}</td>
+        <td><button class="btn btn-danger" data-del="${m.id}">Hapus</button></td>
+      </tr>
+    `).join('');
+    body.querySelectorAll('[data-del]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        members = members.filter(m=>m.id!==b.dataset.del);
+        delete attendance[b.dataset.del];
+        await saveMembers();
+        await saveAttendance(false);
+        renderAnggota();
+      });
+    });
+  }
+
+  // ---------- MATRIX ----------
+  function renderMatrix(){
+    $('#rangeBadge').textContent = fmtRangeBadge();
+    $('#rangeStart').value = rangeStart;
+    $('#rangeEnd').value = rangeEnd;
+
+    const table = $('#matrixTable');
+    const dates = dateList();
+    const empty = $('#matrixEmpty');
+
+    if(members.length===0){
+      table.innerHTML = '';
+      empty.style.display='block';
+      return;
+    }
+    empty.style.display='none';
+
+    if(dates.length===0){
+      table.innerHTML = '<tr><td style="padding:20px;">Rentang tanggal tidak valid.</td></tr>';
+      return;
+    }
+
+    const weeks = weekNumbers(dates);
+
+    // row 1: week groups (Minggu 1, 2, 3...)
+    let weekRow = '<tr><th class="col-no" rowspan="2"></th><th class="col-name" rowspan="2">Nama Anggota</th>';
+    let i2 = 0;
+    while(i2 < dates.length){
+      let span = 1;
+      while(i2+span < dates.length && weeks[i2+span]===weeks[i2]) span++;
+      const altClass = (weeks[i2] % 2 === 0) ? 'alt' : '';
+      weekRow += `<th class="week-head ${altClass}" colspan="${span}">Minggu ${weeks[i2]}</th>`;
+      i2 += span;
+    }
+    weekRow += '</tr>';
+
+    // row 2: day numbers
+    let dayRow = '<tr>';
+    dates.forEach((d,i)=>{
+      const monthChange = i===0 || d.getMonth() !== dates[i-1].getMonth();
+      const wknd = (d.getDay()===0 || d.getDay()===6);
+      dayRow += `<th class="${monthChange?'month-sep':''} ${wknd?'weekend':''}" title="${d.getDate()} ${MONTHS_ID_LONG[d.getMonth()]}">${fmtShort(d)}</th>`;
+    });
+    dayRow += '</tr>';
+
+    let thead = '<thead>' + weekRow + dayRow + '</thead>';
+
+    let tbody = '<tbody>';
+    members.forEach((m,idx)=>{
+      tbody += `<tr><td class="col-no mono">${idx+1}</td><td class="col-name"><div class="cell-name">${escapeHtml(m.nama)}</div><div class="cell-npm">${escapeHtml(m.npm||'')}</div></td>`;
+      dates.forEach((d,i)=>{
+        const iso = isoOf(d);
+        const status = (attendance[m.id] && attendance[m.id][iso]) || '';
+        const monthChange = i===0 || d.getMonth() !== dates[i-1].getMonth();
+        const wknd = (d.getDay()===0 || d.getDay()===6);
+        const cls = ['day-cell'];
+        if(status==='H') cls.push('hadir');
+        if(status==='AG') cls.push('agenda');
+        if(status==='PK') cls.push('proker');
+        if(status==='IZ') cls.push('izin');
+        if(monthChange) cls.push('month-sep');
+        if(wknd && !status) cls.push('weekend');
+        tbody += `<td class="${cls.join(' ')}" data-member="${m.id}" data-date="${iso}">${cellSymbol(status)}</td>`;
+      });
+      tbody += '</tr>';
+    });
+    tbody += '</tbody>';
+
+    table.innerHTML = thead + tbody;
+
+    table.querySelectorAll('.day-cell').forEach(cell=>{
+      cell.addEventListener('click', async ()=>{
+        const mid = cell.dataset.member, date = cell.dataset.date;
+        if(!attendance[mid]) attendance[mid] = {};
+        const cur = attendance[mid][date] || '';
+        const order = ['', 'H','AG','PK','IZ'];
+        const next = order[(order.indexOf(cur)+1) % order.length];
+        if(next===''){ delete attendance[mid][date]; } else { attendance[mid][date] = next; }
+        cell.textContent = cellSymbol(next);
+        cell.classList.remove('hadir','agenda','proker','izin');
+        if(next==='H') cell.classList.add('hadir');
+        if(next==='AG') cell.classList.add('agenda');
+        if(next==='PK') cell.classList.add('proker');
+        if(next==='IZ') cell.classList.add('izin');
+        await saveAttendance(true);
+      });
+    });
+  }
+
+  function cellSymbol(status){
+    if(status==='IZ') return 'I';
+    if(status==='H' || status==='AG' || status==='PK') return '✓';
+    return '';
+  }
+
+  // ---------- REKAP ----------
+  function computeRecap(){
+    const dates = dateList();
+    const totalHari = dates.length;
+    const rows = members.map(m=>{
+      const rec = attendance[m.id] || {};
+      let hadir=0, agenda=0, proker=0, izin=0, belum=0;
+      dates.forEach(d=>{
+        const s = rec[isoOf(d)] || '';
+        if(s==='H') hadir++;
+        else if(s==='AG') agenda++;
+        else if(s==='PK') proker++;
+        else if(s==='IZ') izin++;
+        else belum++;
+      });
+      const pct = totalHari ? Math.round(((hadir+agenda+proker)/totalHari)*100) : 0;
+      return {m, hadir, agenda, proker, izin, belum, pct};
+    });
+    return {rows, totalHari};
+  }
+
+  function renderRekap(){
+    const {rows, totalHari} = computeRecap();
+    const totalAgenda = rows.reduce((a,r)=>a+r.agenda,0);
+    const totalProker = rows.reduce((a,r)=>a+r.proker,0);
+    const totalIzin = rows.reduce((a,r)=>a+r.izin,0);
+    const totalBelum = rows.reduce((a,r)=>a+r.belum,0);
+    const avgPct = rows.length ? Math.round(rows.reduce((a,r)=>a+r.pct,0)/rows.length) : 0;
+
+    $('#statGrid').innerHTML = `
+      <div class="stat"><div class="val">${members.length}</div><div class="lbl">Anggota</div></div>
+      <div class="stat"><div class="val">${totalHari}</div><div class="lbl">Hari (${fmtRangeBadge()})</div></div>
+      <div class="stat blue"><div class="val">${totalAgenda}</div><div class="lbl">Total Agenda</div></div>
+      <div class="stat red"><div class="val">${totalProker}</div><div class="lbl">Total Proker</div></div>
+      <div class="stat" style="color:#8F6A22;"><div class="val" style="color:#8F6A22;">${totalIzin}</div><div class="lbl">Total Izin</div></div>
+      <div class="stat green"><div class="val">${avgPct}%</div><div class="lbl">Rata-rata Kehadiran</div></div>
+    `;
+
+    const body = $('#rekapBody');
+    if(members.length===0){
+      $('#rekapEmpty').style.display='block';
+      body.innerHTML='';
+      return;
+    }
+    $('#rekapEmpty').style.display='none';
+    body.innerHTML = rows.map(r=>`
+      <tr>
+        <td>${escapeHtml(r.m.nama)}</td>
+        <td class="mono">${escapeHtml(r.m.npm||'-')}</td>
+        <td class="mono">${r.hadir}</td>
+        <td class="mono">${r.agenda}</td>
+        <td class="mono">${r.proker}</td>
+        <td class="mono">${r.izin}</td>
+        <td class="mono" style="color:var(--ink-soft);">${r.belum}</td>
+        <td style="min-width:120px;">
+          <div class="mono" style="font-size:12px;">${r.pct}%</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${r.pct}%;"></div></div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ---------- INIT ----------
+  (async function init(){
+    await loadData();
+    renderAnggota();
+    renderMatrix();
+  })();
+})();
+</script>
+</body>
+</html>
