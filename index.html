@@ -152,9 +152,10 @@
   .range-row{display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin-bottom:4px;}
   .range-row > div{min-width:150px;}
 
-  table{width:100%; border-collapse:collapse; font-size:14px;}
-  th{font-family:'JetBrains Mono', monospace; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); padding:8px 10px; border-bottom:2px solid var(--ink);}
-  td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  /* --- PENYESUAIAN UKURAN TABEL STANDAR --- */
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{font-family:'JetBrains Mono', monospace; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); padding:10px 12px; border-bottom:2px solid var(--ink);}
+  td{padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:middle;}
   tr:last-child td{border-bottom:none;}
   .mono{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--ink-soft);}
   .card table:not(.matrix) tbody tr:nth-child(even) td{background:rgba(46,58,43,0.025);}
@@ -171,7 +172,7 @@
   .legend i.proker{background:var(--stamp-red); border-color:var(--stamp-red-dark);}
   .legend i.izin{background:var(--amber); border-color:#8F6A22;}
 
-  /* STUKTUR TABEL MATRIX */
+  /* --- STUKTUR TABEL MATRIX & FIX BORDER MINGGU 2 --- */
   .grid-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px; position:relative;}
   table.matrix{border-collapse:separate; border-spacing:0; font-size:12px; min-width:100%; background:var(--card);}
   table.matrix th, table.matrix td{border:1px solid var(--line); padding:0; text-align:center;}
@@ -192,7 +193,7 @@
   table.matrix .col-name{
     position:sticky; left:35px; z-index:5;
     background:var(--card);
-    text-align:left; padding:9px 10px;
+    text-align:left; padding:8px 10px;
     min-width:210px; max-width:210px;
     border-right:1px solid var(--ink);
   }
@@ -214,7 +215,7 @@
   .cell-name{font-weight:600; font-size:13px;}
   .cell-npm{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-soft);}
   .day-cell{
-    width:30px; height:36px;
+    width:32px; height:36px;
     cursor:pointer;
     font-family:'JetBrains Mono', monospace;
     font-weight:700;
@@ -231,7 +232,8 @@
   .day-cell.proker{background:var(--stamp-red); color:#fff;}
   .day-cell.izin{background:var(--amber); color:#fff;}
   
-  .month-sep{border-left:1px solid var(--ink) !important;}
+  /* PERBAIKAN GARIS PEMBATAS BULAN AGAR TIDAK MENEBAL SENDIRI */
+  .month-sep{border-left:1px solid var(--line) !important;}
 
   .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:18px;}
   .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:left;}
