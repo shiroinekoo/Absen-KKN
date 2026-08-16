@@ -235,7 +235,6 @@
   .day-cell.proker{background:var(--stamp-red); color:#fff;}
   .day-cell.izin{background:var(--amber); color:#fff;}
   
-  /* Perbaikan pembatas bulan agar rapi dan tidak tebal berlebihan */
   .month-sep{border-left:1px solid var(--ink) !important;}
 
   .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:18px;}
@@ -351,7 +350,7 @@
 </div>
 
 <script>
-(function(){
+document.addEventListener("DOMContentLoaded", function() {
   const DEFAULT_MEMBERS = [
     {npm:"20231510043", nama:"Abel Gutawa"},
     {npm:"20231510085", nama:"Alvi Nur Rahma"},
@@ -378,7 +377,7 @@
   const MONTHS_ID_LONG = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
   let members = [];
-  let attendance = {}; // Dimulai dalam keadaan bersih tanpa data presensi awal
+  let attendance = {};
   let rangeStart = DEFAULT_START;
   let rangeEnd = DEFAULT_END;
 
@@ -418,17 +417,19 @@
     return `${s.getDate()} ${MONTHS_ID[s.getMonth()]} - ${e.getDate()} ${MONTHS_ID[e.getMonth()]}`;
   }
 
-  // ---------- STORAGE ----------
-  async function loadData(){
-    let seedNeeded = false;
+  function loadData(){
     try{
       const m = localStorage.getItem('kkn-members');
       members = m ? JSON.parse(m) : null;
     }catch(e){ members = null; }
-    if(!members){ seedNeeded = true; }
+
+    if(!members || members.length === 0){
+      members = DEFAULT_MEMBERS.map(m => ({id: uid(), npm: m.npm, nama: m.nama}));
+      saveMembers();
+    }
 
     try{
-      const a = localStorage.getItem('kkn-attendance_clean');
+      const a = localStorage.getItem('kkn-attendance_v2');
       attendance = a ? JSON.parse(a) : {};
     }catch(e){ attendance = {}; }
 
@@ -436,53 +437,52 @@
       const r = localStorage.getItem('kkn-range');
       if(r){ const rv = JSON.parse(r); rangeStart = rv.start || DEFAULT_START; rangeEnd = rv.end || DEFAULT_END; }
     }catch(e){ /* keep defaults */ }
-
-    if(seedNeeded){
-      members = DEFAULT_MEMBERS.map(m => ({id: uid(), npm: m.npm, nama: m.nama}));
-      await saveMembers();
-    }
   }
 
-  async function saveMembers(){
+  function saveMembers(){
     try{ localStorage.setItem('kkn-members', JSON.stringify(members)); }
     catch(e){ console.error('Gagal menyimpan anggota', e); }
   }
 
-  async function saveAttendance(showStatus){
+  function saveAttendance(showStatus){
     try{
-      localStorage.setItem('kkn-attendance_clean', JSON.stringify(attendance));
+      localStorage.setItem('kkn-attendance_v2', JSON.stringify(attendance));
       if(showStatus){
         const el = $('#saveStatus');
-        el.textContent = '✓ Tersimpan';
-        setTimeout(()=>{ if(el.textContent==='✓ Tersimpan') el.textContent=''; }, 1500);
+        if(el) {
+          el.textContent = '✓ Tersimpan';
+          setTimeout(()=>{ if(el.textContent==='✓ Tersimpan') el.textContent=''; }, 1500);
+        }
       }
     }catch(e){ console.error('Gagal menyimpan presensi', e); }
   }
 
-  async function saveRange(){
+  function saveRange(){
     try{ localStorage.setItem('kkn-range', JSON.stringify({start:rangeStart, end:rangeEnd})); }
     catch(e){ console.error('Gagal menyimpan rentang tanggal', e); }
   }
 
-  // ---------- TABS ----------
+  // ---------- TABS NAVIGATION ----------
   $$('nav.tabs button').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
+    btn.addEventListener('click', function(){
       $$('nav.tabs button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
+      this.classList.add('active');
       $$('.view').forEach(v=>v.classList.remove('active'));
-      $('#view-'+btn.dataset.view).classList.add('active');
-      if(btn.dataset.view==='rekap') renderRekap();
-      if(btn.dataset.view==='anggota') renderAnggota();
-      if(btn.dataset.view==='presensi') renderMatrix();
+      const targetView = $('#view-' + this.dataset.view);
+      if(targetView) targetView.classList.add('active');
+      
+      if(this.dataset.view === 'rekap') renderRekap();
+      if(this.dataset.view === 'anggota') renderAnggota();
+      if(this.dataset.view === 'presensi') renderMatrix();
     });
   });
 
   // ---------- RENTANG TANGGAL ----------
-  $('#btnApplyRange').addEventListener('click', async ()=>{
+  $('#btnApplyRange').addEventListener('click', function(){
     const s = $('#rangeStart').value, e = $('#rangeEnd').value;
     if(!s || !e || s > e) return;
     rangeStart = s; rangeEnd = e;
-    await saveRange();
+    saveRange();
     renderMatrix();
   });
 
@@ -524,7 +524,7 @@
   }
 
   function exportExcel(){
-    if(typeof XLSX === 'undefined'){ alert('Gagal memuat modul Excel.'); return; }
+    if(typeof XLSX === 'undefined'){ alert('Modul Excel sedang dimuat, coba lagi sebentar.'); return; }
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, buildMatrixSheet(), 'Presensi');
     XLSX.utils.book_append_sheet(wb, buildRekapSheet(), 'Rekap');
@@ -536,13 +536,13 @@
   $('#btnExportRekap').addEventListener('click', exportExcel);
 
   // ---------- ANGGOTA ----------
-  $('#btnTambah').addEventListener('click', async ()=>{
+  $('#btnTambah').addEventListener('click', function(){
     const npm = $('#inputNim').value.trim();
     const nama = $('#inputNama').value.trim();
     if(!nama){ $('#inputNama').focus(); return; }
     members.push({id: uid(), npm, nama});
     $('#inputNim').value=''; $('#inputNama').value='';
-    await saveMembers();
+    saveMembers();
     renderAnggota();
   });
 
@@ -560,11 +560,11 @@
       </tr>
     `).join('');
     body.querySelectorAll('[data-del]').forEach(b=>{
-      b.addEventListener('click', async ()=>{
-        members = members.filter(m=>m.id!==b.dataset.del);
-        delete attendance[b.dataset.del];
-        await saveMembers();
-        await saveAttendance(false);
+      b.addEventListener('click', function(){
+        members = members.filter(m=>m.id!==this.dataset.del);
+        delete attendance[this.dataset.del];
+        saveMembers();
+        saveAttendance(false);
         renderAnggota();
       });
     });
@@ -639,20 +639,20 @@
     table.innerHTML = thead + tbody;
 
     table.querySelectorAll('.day-cell').forEach(cell=>{
-      cell.addEventListener('click', async ()=>{
-        const mid = cell.dataset.member, date = cell.dataset.date;
+      cell.addEventListener('click', function(){
+        const mid = this.dataset.member, date = this.dataset.date;
         if(!attendance[mid]) attendance[mid] = {};
         const cur = attendance[mid][date] || '';
         const order = ['', 'H','AG','PK','IZ'];
         const next = order[(order.indexOf(cur)+1) % order.length];
         if(next===''){ delete attendance[mid][date]; } else { attendance[mid][date] = next; }
-        cell.textContent = cellSymbol(next);
-        cell.classList.remove('hadir','agenda','proker','izin');
-        if(next==='H') cell.classList.add('hadir');
-        if(next==='AG') cell.classList.add('agenda');
-        if(next==='PK') cell.classList.add('proker');
-        if(next==='IZ') cell.classList.add('izin');
-        await saveAttendance(true);
+        this.textContent = cellSymbol(next);
+        this.classList.remove('hadir','agenda','proker','izin');
+        if(next==='H') this.classList.add('hadir');
+        if(next==='AG') this.classList.add('agenda');
+        if(next==='PK') this.classList.add('proker');
+        if(next==='IZ') this.classList.add('izin');
+        saveAttendance(true);
       });
     });
   }
@@ -725,12 +725,10 @@
   }
 
   // ---------- INIT ----------
-  (async function init(){
-    await loadData();
-    renderAnggota();
-    renderMatrix();
-  })();
-})();
+  loadData();
+  renderAnggota();
+  renderMatrix();
+});
 </script>
 </body>
 </html>
