@@ -172,29 +172,50 @@
   .legend i.proker{background:var(--stamp-red); border-color:var(--stamp-red-dark);}
   .legend i.izin{background:var(--amber); border-color:#8F6A22;}
 
-  .grid-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px;}
-  table.matrix{border-collapse:separate; border-spacing:0; font-size:12px; min-width:100%;}
+  /* --- PERBAIKAN TABEL MATRIX & STICKY STYLES --- */
+  .grid-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px; position:relative;}
+  table.matrix{border-collapse:separate; border-spacing:0; font-size:12px; min-width:100%; background:var(--card);}
   table.matrix th, table.matrix td{border:1px solid var(--line); padding:0; text-align:center;}
-  table.matrix thead th{background:var(--paper-dark); font-family:'JetBrains Mono', monospace; font-weight:700; padding:7px 3px; font-size:11px; white-space:nowrap; vertical-align:middle;}
+  
+  /* Header Sticky */
+  table.matrix thead th{
+    position:sticky; top:0; z-index:4;
+    background:var(--paper-dark);
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700; padding:7px 3px; font-size:11px; white-space:nowrap; vertical-align:middle;
+  }
+  
+  /* Kolom Sticky Kiri */
+  table.matrix .col-no{
+    position:sticky; left:0; z-index:5;
+    background:var(--card);
+    min-width:35px; max-width:35px;
+    border-right:1px solid var(--line);
+  }
   table.matrix .col-name{
-    position:sticky; left:35px; z-index:2;
+    position:sticky; left:35px; z-index:5;
     background:var(--card);
     text-align:left; padding:9px 10px;
     min-width:210px; max-width:210px;
-    border-right:2px solid var(--ink);
+    border-right:1.5px solid var(--ink);
   }
-  table.matrix thead .col-name{background:var(--paper-dark); z-index:3; border-bottom:2px solid var(--ink);}
-  table.matrix .col-no{position:sticky; left:0; z-index:2; background:var(--card); min-width:35px; max-width:35px; border-right:1px solid var(--line);}
-  table.matrix thead .col-no{background:var(--paper-dark); z-index:3;}
+
+  /* Perbedaan Z-Index untuk Header Pojok Kiri Atas */
+  table.matrix thead .col-no{ z-index:10; background:var(--paper-dark); }
+  table.matrix thead .col-name{ z-index:10; background:var(--paper-dark); border-bottom:1.5px solid var(--ink); }
+
+  /* Warna latar zebra striping pada kolom sticky */
   table.matrix tbody tr:nth-child(even) .col-no,
-  table.matrix tbody tr:nth-child(even) .col-name{background:rgba(46,58,43,0.03);}
+  table.matrix tbody tr:nth-child(even) .col-name{background:#F6F3E7;}
   table.matrix tbody tr:hover .col-no,
   table.matrix tbody tr:hover .col-name{background:var(--paper-dark);}
+
   .week-head{font-family:'JetBrains Mono', monospace; font-weight:700; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); background:var(--paper-dark); padding:6px 2px !important;}
   .week-head.alt{color:var(--stamp-red);}
   .day-num{display:block;}
   .day-num.sunday{color:var(--stamp-red); font-weight:700;}
-  th.sunday-header{background:var(--paper-dark); border-bottom:2px solid var(--stamp-red);}
+  th.sunday-header{background:var(--paper-dark);}
+
   .cell-name{font-weight:600; font-size:13px;}
   .cell-npm{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-soft);}
   .day-cell{
@@ -214,7 +235,7 @@
   .day-cell.agenda{background:var(--sky); color:#fff;}
   .day-cell.proker{background:var(--stamp-red); color:#fff;}
   .day-cell.izin{background:var(--amber); color:#fff;}
-  .month-sep{border-left:2px solid var(--ink) !important;}
+  .month-sep{border-left:1.5px solid var(--ink) !important;}
 
   .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:18px;}
   .stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:left;}
@@ -461,12 +482,10 @@
     renderMatrix();
   });
 
-  // ---------- EXPORT EXCEL ----------
+  // ---------- EXPORT EXCEL (SIMBOL DILAPORKAN SAMA PERSIS DENGAN WEB) ----------
   function statusLabel(s){
-    if(s==='H') return 'Hadir';
-    if(s==='AG') return 'Agenda';
-    if(s==='PK') return 'Proker';
-    if(s==='IZ') return 'Izin';
+    if(s==='H' || s==='AG' || s==='PK') return '✓';
+    if(s==='IZ') return 'I';
     return '-';
   }
 
